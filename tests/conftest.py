@@ -10,6 +10,7 @@ from foxglove.test_server import create_dummy_server
 from foxglove.testing import TestClient
 from requests import Response as RequestsResponse
 
+from src import app
 from src.settings import Settings
 
 from .dummy_server import routes
@@ -17,13 +18,15 @@ from .dummy_server import routes
 
 @pytest.fixture(name='settings', scope='session')
 def fix_settings():
-    return Settings.load_cached(
+    settings = Settings(
         github_app_id='12345',
         redis_dsn='redis://localhost:6379/5',
         webhook_secret=b'webhook_secret',
         marketplace_webhook_secret=b'marketplace_webhook_secret',
         github_app_secret_key='tests/test_github_app_secret_key.pem',
     )
+    app.dependency_overrides[Settings] = lambda: settings
+    return settings
 
 
 @pytest.fixture(name='loop')
